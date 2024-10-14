@@ -1,29 +1,39 @@
-import random
+from turtle import *
+from freegames import line
 
-print("Welcome to Connect Four")
-print("-----------------------")
+turns = {'red': 'yellow', 'yellow': 'red'}
+state = {'player': 'yellow', 'rows': [0] * 8}
 
-possibleLetters = ["A","B","C","D","E","F","G"]
-gameBoard = [["","","","","","",""], ["","","","","","",""],["","","","","","",""],["","","","","","",""],["","","","","","",""],["","","","","","",""]]
-rows = 6
-cols = 7
+def grid():
+    """Draw Connect Four grid."""
+    bgcolor('light blue')
+    for x in range(-150, 200, 50):
+        line(x, -200, x, 200)
+    for x in range(-175, 200, 50):
+        for y in range(-175, 200, 50):
+            up()
+            goto(x, y)
+            dot(40, 'white')
+    update()
 
-def printGameBoard():
-  print("\n     A    B    C    D    E    F    G  ", end="")
-  for x in range(rows):
-    print("\n   +----+----+----+----+----+----+----+")
-    print(x, " |", end="")
-    for y in range(cols):
-      if(gameBoard[x][y] == "🔵"):
-        print("",gameBoard[x][y], end=" |")
-      elif(gameBoard[x][y] == "🔴"):
-        print("", gameBoard[x][y], end=" |")
-      else:
-        print(" ", gameBoard[x][y], end="  |")
-  print("\n   +----+----+----+----+----+----+----+")
+def tap(x, y):
+    """Draw red or yellow circle in tapped row."""
+    player = state['player']
+    rows = state['rows']
+    row = int((x + 200) // 50)
+    count = rows[row]
+    x = ((x + 200) // 50) * 50 - 200 + 25
+    y = count * 50 - 200 + 25
+    up()
+    goto(x, y)
+    dot(40, player)
+    update()
+    rows[row] = count + 1
+    state['player'] = turns[player]
 
-def modifyTurn(spacePicked, turn):
-  gameBoard[spacePicked[0]][spacePicked[1]] = turn
-
-turnCounter = 0
-
+setup(420, 420, 370, 0)
+hideturtle()
+tracer(False)
+grid()
+onscreenclick(tap)
+done()
