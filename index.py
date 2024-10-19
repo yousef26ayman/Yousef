@@ -1,188 +1,68 @@
-import sys
+
+from tkinter import *
+import random, string
 
 
-PLAYER_1_PITS = ('A', 'B', 'C', 'D', 'E', 'F')
-PLAYER_2_PITS = ('G', 'H', 'I', 'J', 'K', 'L')
+root = Tk()
+root.geometry("400x280")
+root.title("Password Generator APP")
+
+title = StringVar()
+label = Label(root, textvariable=title).pack()
+title.set("CHOOSE AN OPTION")
 
 
-OPPOSITE_PIT = {'A': 'G', 'B': 'H', 'C': 'I', 'D': 'J', 'E': 'K',
-                   'F': 'L', 'G': 'A', 'H': 'B', 'I': 'C', 'J': 'D',
-                   'K': 'E', 'L': 'F'}
+def selection():
+    global selection
+    selection = choice.get()
 
 
-NEXT_PIT = {'A': 'B', 'B': 'C', 'C': 'D', 'D': 'E', 'E': 'F', 'F': '1',
-            '1': 'L', 'L': 'K', 'K': 'J', 'J': 'I', 'I': 'H', 'H': 'G',
-            'G': '2', '2': 'A'}
+
+choice = IntVar()
+R1 = Radiobutton(root, text="WEAK", variable=choice, value=1, command=selection).pack(anchor=CENTER)
+R2 = Radiobutton(root, text="AVERAGE", variable=choice, value=2, command=selection).pack(anchor=CENTER)
+R3 = Radiobutton(root, text="STRONG", variable=choice, value=3, command=selection).pack(anchor=CENTER)
+labelchoice = Label(root)
+labelchoice.pack()
 
 
-PIT_LABELS = 'ABCDEF1LKJIHG2'
+lenlabel = StringVar()
+lenlabel.set("Password length:")
+lentitle = Label(root, textvariable=lenlabel).pack()
 
 
-STARTING_NUMBER_OF_SEEDS = 4  
+val = IntVar()
+spinlenght = Spinbox(root, from_=4, to_=24, textvariable=val, width=13).pack()
 
 
-def main():
-    print('''======== Mancala Game ========\n\n\n''')
-    input('Press Enter to begin...')
 
-    gameBoard = getNewBoard()
-    playerTurn = '1'  
-
-    while True:  
-      
-        print('\n' * 60)
-       
-        displayBoard(gameBoard)
-        playerMove = askForPlayerMove(playerTurn, gameBoard)
-
-       
-        playerTurn = makeMove(gameBoard, playerTurn, playerMove)
-
-        
-        winner = checkForWinner(gameBoard)
-        if winner == '1' or winner == '2':
-            displayBoard(gameBoard)  
-            print('Player ' + winner + ' has won!')
-            sys.exit()
-        elif winner == 'tie':
-            displayBoard(gameBoard)  
-            print('There is a tie!')
-            sys.exit()
+def callback():
+    lsum.config(text=passgen())
 
 
-def getNewBoard():
-    """Return a dictionary representing a Mancala board in the starting
-    state: 4 seeds in each pit and 0 in the stores."""
 
-   
-    s = STARTING_NUMBER_OF_SEEDS
+passgenButton = Button(root, text="Generate Password", bd=5, command=callback)
+passgenButton.pack(pady=20)
+password = str(callback)
 
 
-    return {'1': 0, '2': 0, 'A': s, 'B': s, 'C': s, 'D': s, 'E': s,
-            'F': s, 'G': s, 'H': s, 'I': s, 'J': s, 'K': s, 'L': s}
+lsum = Label(root, text="Password here", font=("arial", 20))
+lsum.pack(side=BOTTOM, anchor="n")
 
 
-def displayBoard(board):
-    """Displays the game board as ASCII-art based on the board
-    dictionary."""
-
-    seedAmounts = []
-   
-    for pit in 'GHIJKL21ABCDEF':
-        numSeedsInThisPit = str(board[pit]).rjust(2)
-        seedAmounts.append(numSeedsInThisPit)
-
-    print("""
-+------+------+--<<<<<-Player 2----+------+------+------+
-2      |G     |H     |I     |J     |K     |L     |      1
-       |  {}  |  {}  |  {}  |  {}  |  {}  |  {}  |
-S      |      |      |      |      |      |      |      S
-T  {}  +------+------+------+------+------+------+  {}  T
-O      |A     |B     |C     |D     |E     |F     |      O
-R      |  {}  |  {}  |  {}  |  {}  |  {}  |  {}  |      R
-E      |      |      |      |      |      |      |      E
-+------+------+------+-Player 1->>>>>-----+------+------+
-
-""".format(*seedAmounts))
+poor= string.ascii_uppercase + string.ascii_lowercase
+average= string.ascii_uppercase + string.ascii_lowercase + string.digits
+symbols = """`~!@#$%^&*()_-+={}[]\|:;"'<>,.?/"""
+advance = poor+ average + symbols
 
 
-def askForPlayerMove(playerTurn, board):
-    """Asks the player which pit on their side of the board they
-    select to sow seeds from. Returns the uppercase letter label of the
-    selected pit as a string."""
-
-    while True:  
-       
-        if playerTurn == '1':
-            print('Player 1, choose move: A-F (or QUIT)')
-        elif playerTurn == '2':
-            print('Player 2, choose move: G-L (or QUIT)')
-        response = input('> ').upper().strip()
-
-        
-        if response == 'QUIT':
-            print('Thanks for playing!')
-            sys.exit()
-
-        
-        if (playerTurn == '1' and response not in PLAYER_1_PITS) or (
-            playerTurn == '2' and response not in PLAYER_2_PITS
-        ):
-            print('Please pick a letter on your side of the board.')
-            continue 
-        if board.get(response) == 0:
-            print('Please pick a non-empty pit.')
-            continue  
-        return response
+def passgen():
+    if choice.get() == 1:
+        return "".join(random.sample(poor, val.get()))
+    elif choice.get() == 2:
+        return "".join(random.sample(average, val.get()))
+    elif choice.get() == 3:
+        return "".join(random.sample(advance, val.get()))
 
 
-def makeMove(board, playerTurn, pit):
-    """Modify the board data structure so that the player 1 or 2 in
-    turn selected pit as their pit to sow seeds from. Returns either
-    '1' or '2' for whose turn it is next."""
-
-    seedsToSow = board[pit]  
-    board[pit] = 0  
-
-    while seedsToSow > 0:  
-        pit = NEXT_PIT[pit] 
-        if (playerTurn == '1' and pit == '2') or (
-            playerTurn == '2' and pit == '1'
-        ):
-            continue  
-        board[pit] += 1
-        seedsToSow -= 1
-
-   
-    if (pit == playerTurn == '1') or (pit == playerTurn == '2'):
-        
-        return playerTurn
-
-    
-    if playerTurn == '1' and pit in PLAYER_1_PITS and board[pit] == 1:
-        oppositePit = OPPOSITE_PIT[pit]
-        board['1'] += board[oppositePit]
-        board[oppositePit] = 0
-    elif playerTurn == '2' and pit in PLAYER_2_PITS and board[pit] == 1:
-        oppositePit = OPPOSITE_PIT[pit]
-        board['2'] += board[oppositePit]
-        board[oppositePit] = 0
-
-  
-    if playerTurn == '1':
-        return '2'
-    elif playerTurn == '2':
-        return '1'
-
-
-def checkForWinner(board):
-
-    player1Total = board['A'] + board['B'] + board['C']
-    player1Total += board['D'] + board['E'] + board['F']
-    player2Total = board['G'] + board['H'] + board['I']
-    player2Total += board['J'] + board['K'] + board['L']
-
-    if player1Total == 0:
-       
-        board['2'] += player2Total
-        for pit in PLAYER_2_PITS:
-            board[pit] = 0  
-    elif player2Total == 0:
-        
-        board['1'] += player1Total
-        for pit in PLAYER_1_PITS:
-            board[pit] = 0 
-    else:
-        return 'no winner' 
-
-   
-    if board['1'] > board['2']:
-        return '1'
-    elif board['2'] > board['1']:
-        return '2'
-    else:
-        return 'tie'
-
-
-if __name__ == '__main__':
-    main()
+root.mainloop()
